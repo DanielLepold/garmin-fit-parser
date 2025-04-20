@@ -104,9 +104,8 @@ Matplotlib-based chart rendering.
 VO₂ Max Progression by Activity Type
 ```
 
-![Sample Chart Placeholder](./sample_plot.png)
+![Sample Chart Placeholder](src/sample_result.png)
 
-> Replace this with a real plot image if needed.
 
 ---
 
@@ -157,4 +156,4 @@ This project is **not affiliated with Garmin**. Use at your own discretion. All 
 
 ## 📄 License
 
-MIT License © 2025 [Your Name]
+MIT License © 2025 DanielLepold
