@@ -1,6 +1,10 @@
 # Garmin fir parser
 
 A lightweight Python tool for downloading recent Garmin activities, extracting **VO₂ Max** values from `.fit` files, and visualizing the progression by activity type.
+- Authenticates via **Garmin Connect Web API** using the user's email and password.
+- Downloads `.fit` files as binary via the **Garmin Web API endpoint**.
+- Filters activities by supported types (Running, Trail Running, Walking, Cycling).
+- Returns and visualizes in-memory data with activity metadata.
 
 ---
 
