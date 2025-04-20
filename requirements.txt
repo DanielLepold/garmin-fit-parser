@@ -1,0 +1,4 @@
+garminconnect==0.2.26
+garmin_fit_sdk==21.158.0
+matplotlib==3.10.1
+
