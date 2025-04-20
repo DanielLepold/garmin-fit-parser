@@ -1,6 +1,32 @@
 import matplotlib.pyplot as plt
 
 def plot_vo2_max_values(input_list: list[dict]):
+  """
+      Plots VO₂ Max progression over time, differentiating activity types with colored points.
+
+      This function filters out entries that do not contain a valid VO₂ Max value (> 0),
+      sorts the remaining entries by date, and plots the VO₂ Max trend line. Each data point
+      is colored according to its activity type (e.g., running, cycling). A legend is shown
+      to indicate which color corresponds to which activity.
+
+      Args:
+          input_list (list[dict]): A list of activity dictionaries. Each dictionary must contain:
+              - "time" (datetime): The timestamp of the activity.
+              - "vo2_max" (float): The VO₂ Max value.
+              - "type" (str): The type of activity (e.g., "running", "walking").
+
+      Notes:
+          - If no valid VO₂ Max values are found, a warning is printed and nothing is plotted.
+          - The activity types are color-coded:
+              - Running: blue
+              - Trail running: green
+              - Walking: orange
+              - Cycling: red
+              - Any unknown type defaults to gray.
+
+      Example:
+          plot_vo2_max_values(my_activity_list)
+  """
   filtered_data = [
     entry for entry in input_list
     if entry.get("vo2_max") and entry["vo2_max"] > 0
