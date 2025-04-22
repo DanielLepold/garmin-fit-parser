@@ -116,12 +116,13 @@ VO₂ Max Progression by Activity Type
 ## 📁 Example Folder Structure
 
 ```
-garmin-vo2-extractor/
+garmin-fit-parser/
 ├── main.py
 ├── gui.py
 ├── garmin_service.py
 ├── fit_sdk_parser.py
 ├── visualisation.py
+├── utils.py
 ├── requirements.txt
 └── README.md
 ```
