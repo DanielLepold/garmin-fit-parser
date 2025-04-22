@@ -139,19 +139,6 @@ garmin-vo2-extractor/
 
 ---
 
-## 🛠 Packaging to EXE (Optional)
-
-To package as a standalone executable:
-
-```bash
-pip install pyinstaller
-pyinstaller --onefile main.py
-```
-
-Output will be in `dist/main.exe`.
-
----
-
 ## ⚠️ Disclaimer
 
 This project is **not affiliated with Garmin**. Use at your own discretion. All credentials are handled locally via GUI and not stored.
