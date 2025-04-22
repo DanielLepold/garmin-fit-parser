@@ -1,5 +1,5 @@
 from garmin_fit_sdk import Decoder, Stream
-import fit_reader
+import utils
 
 class Parser:
     """
@@ -49,7 +49,7 @@ class Parser:
 
             print(f"📂 Processing: {entry['name']}")
 
-            fit_bytes_io = fit_reader.extract_fit_stream(entry["data"])
+            fit_bytes_io = utils.extract_fit_stream(entry["data"])
             stream = Stream.from_bytes_io(fit_bytes_io)
             decoder = Decoder(stream)
             _, errors = decoder.read(mesg_listener=self._mesg_listener)
