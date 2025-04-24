@@ -6,6 +6,10 @@ A lightweight Python tool for downloading recent Garmin activities, extracting *
 - Filters activities by supported types (Running, Trail Running, Walking, Cycling).
 - Returns and visualizes in-memory data with activity metadata.
 
+There is a detailed description about the tool on medium.com, pls have a look:
+https://medium.com/@daniel.lepold/visualise-your-precise-vo₂-max-from-garmin-data-in-python-2d76e50e437c
+
+
 ---
 
 ## 📦 Features
@@ -41,6 +45,21 @@ python main.py
 
 A GUI window will appear to input your credentials and choose how many recent activities to download.
 
+---
+
+## 📁 Example Folder Structure
+
+```
+garmin-fit-parser/
+├── main.py
+├── gui.py
+├── garmin_service.py
+├── fit_sdk_parser.py
+├── visualisation.py
+├── utils.py
+├── requirements.txt
+└── README.md
+```
 ---
 
 ## 🧩 Module Overview
@@ -109,23 +128,6 @@ VO₂ Max Progression by Activity Type
 ```
 
 ![Sample Chart Placeholder](src/sample_result.png)
-
-
----
-
-## 📁 Example Folder Structure
-
-```
-garmin-fit-parser/
-├── main.py
-├── gui.py
-├── garmin_service.py
-├── fit_sdk_parser.py
-├── visualisation.py
-├── utils.py
-├── requirements.txt
-└── README.md
-```
 
 ---
 
