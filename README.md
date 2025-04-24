@@ -145,7 +145,3 @@ garmin-fit-parser/
 This project is **not affiliated with Garmin**. Use at your own discretion. All credentials are handled locally via GUI and not stored.
 
 ---
-
-## 📄 License
-
-MIT License © 2025 DanielLepold

@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-def plot_vo2_max_values(input_list: list[dict]):
+def plot_vo2_max_values(input_list: list[dict]) -> None:
   """
       Plots VO₂ Max progression over time, differentiating activity types with colored points.
 
