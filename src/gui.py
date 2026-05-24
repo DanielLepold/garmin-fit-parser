@@ -1,75 +1,77 @@
 import tkinter as tk
-from tkinter import simpledialog, messagebox
+from tkinter import simpledialog, messagebox, ttk
+
 import garmin_service as GS
 import fit_sdk_parser as FSP
 import visualisation
 
+
+def _ask_panels_gui(root: tk.Tk) -> list[str]:
+    """Checkbox dialog for selecting which panels to plot."""
+    dialog = tk.Toplevel(root)
+    dialog.title("What to plot?")
+    dialog.resizable(False, False)
+
+    options = [
+        ("vo2",      "VO₂ Max progression"),
+        ("distance", "Distance per activity"),
+        ("hr",       "Average heart rate"),
+    ]
+    vars_ = {key: tk.BooleanVar(value=True) for key, _ in options}
+
+    tk.Label(dialog, text="Select metrics to display:", font=("", 11)).pack(padx=20, pady=(16, 8))
+    for key, label in options:
+        tk.Checkbutton(dialog, text=label, variable=vars_[key], font=("", 10)).pack(anchor="w", padx=30)
+
+    result = []
+
+    def confirm():
+        result.extend(key for key, _ in options if vars_[key].get())
+        dialog.destroy()
+
+    tk.Button(dialog, text="Plot", command=confirm, width=12).pack(pady=16)
+    dialog.grab_set()
+    root.wait_window(dialog)
+    return result
+
+
 class GarminDownloaderGUI:
-    """
-    A simple GUI class to interactively download Garmin activities using tkinter dialogs.
-
-    This class prompts the user for email, password, and number of activities,
-    then downloads the activities via the GarminService, parses VO2 max values from
-    the activity data, and finally visualizes the VO2 max progression.
-
-    Attributes:
-        email (str): Garmin account email address entered by the user.
-        password (str): Garmin account password entered by the user.
-        number (int): Number of recent activities to download.
-    """
-
-    def __init__(self):
-        """
-        Initializes the GarminDownloaderGUI with default None values.
-        """
-        self.email = None
-        self.password = None
-        self.number = None
+    """Tkinter GUI for downloading and visualizing Garmin activities."""
 
     def run(self):
-        """
-        Runs the GUI workflow:
-
-        1. Prompts user for email, password, and number of activities.
-        2. Displays a summary confirmation.
-        3. Downloads the selected number of activities from Garmin.
-        4. Parses VO₂ Max values from the downloaded FIT files.
-        5. Displays a line chart of VO₂ Max progression.
-
-        Raises:
-            Shows an error message using tkinter if any required input is missing.
-        """
         root = tk.Tk()
         root.withdraw()
 
-        self.email = simpledialog.askstring("Email", "Enter your email:")
-        if not self.email:
+        email = simpledialog.askstring("Login", "Garmin email:")
+        if not email:
             messagebox.showerror("Error", "Email is required.")
             return
 
-        self.password = simpledialog.askstring("Password", "Enter your password:", show='*')
-        if not self.password:
+        password = simpledialog.askstring("Login", "Garmin password:", show="*")
+        if not password:
             messagebox.showerror("Error", "Password is required.")
             return
 
-        self.number = simpledialog.askinteger("Number", "Number of activities to download:")
-        if self.number is None:
+        number = simpledialog.askinteger("Activities", "Number of activities to download:", initialvalue=50)
+        if number is None:
             messagebox.showerror("Error", "Number is required.")
             return
 
-        # Show summary confirmation
-        summary = f"""Summary:
-                  Email: {self.email}
-                  Password: {'*' * len(self.password)}
-                  Number of Activities: {self.number}"""
-        messagebox.showinfo("Summary", summary)
+        def prompt_mfa():
+            code = simpledialog.askstring("2FA", "Enter Garmin 2FA code:")
+            return code or ""
 
-        # Download activities and process them
-        results = GS.GarminService(
-            email_address=self.email,
-            password=self.password
-        ).download_activities(number=self.number)
+        try:
+            service = GS.GarminService(email, password, prompt_mfa=prompt_mfa)
+            results = service.download_activities(number=number)
+        except Exception as e:
+            messagebox.showerror("Login failed", str(e))
+            return
+
+        if not results:
+            messagebox.showinfo("Done", "No supported activities found.")
+            return
 
         FSP.Parser(results).parse_vo2_max_values()
-
-        visualisation.plot_vo2_max_values(results)
+        selected = _ask_panels_gui(root)
+        visualisation.plot_dashboard(results, panels=selected or None)

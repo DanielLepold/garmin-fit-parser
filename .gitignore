@@ -1,2 +1,13 @@
-.idea
-src/__pycache__/
+.idea/
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+src/build/
+src/dist/
+src/temp/
+src/*.spec
+src/*.zip
+.DS_Store
+src/test_run.py
