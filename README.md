@@ -108,7 +108,11 @@ To force a fresh login (e.g. after token expiry), delete `~/.garminconnect/`.
 
 ## Manual smoke test
 
-A `test_run.py` script is available for local verification. It is **not committed** to the repository (`src/test_run.py` is in `.gitignore`).
+A template script is committed at `src/test_run.py.example`. Copy it, fill in your credentials, and run it locally. The filled-in file is gitignored and never committed.
+
+```bash
+cp src/test_run.py.example src/test_run.py
+```
 
 Open `src/test_run.py` and set your credentials:
 
