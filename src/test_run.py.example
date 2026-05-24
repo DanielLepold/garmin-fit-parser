@@ -1,0 +1,115 @@
+"""
+Manual smoke test — NOT committed, NOT part of the production code.
+Run from the src/ directory:
+
+    python test_run.py
+
+Covers:
+  1. Auth with token caching (2FA only on first run)
+  2. Activity download
+  3. FIT file parsing (VO2 Max extraction)
+  4. Dashboard rendering
+"""
+
+import sys
+import traceback
+
+import garmin_service as GS
+import fit_sdk_parser as FSP
+import visualisation
+
+# ── credentials ──────────────────────────────────────────────────────────────
+EMAIL = "your@email.com"
+PASSWORD = "yourpassword"
+ACTIVITY_COUNT = 10  # keep small for a quick smoke test
+# ─────────────────────────────────────────────────────────────────────────────
+
+PASS = "✅"
+FAIL = "❌"
+SEP = "─" * 60
+
+
+def section(title: str):
+    print(f"\n{SEP}\n  {title}\n{SEP}")
+
+
+def check(label: str, condition: bool, detail: str = ""):
+    status = PASS if condition else FAIL
+    suffix = f"  ({detail})" if detail else ""
+    print(f"  {status}  {label}{suffix}")
+    return condition
+
+
+# ── 1. Authentication ─────────────────────────────────────────────────────────
+section("1 / 4  Authentication")
+try:
+    service = GS.GarminService(EMAIL, PASSWORD)
+    auth_ok = True
+except Exception as e:
+    print(f"  {FAIL}  Login failed: {e}")
+    traceback.print_exc()
+    sys.exit(1)
+
+check("Login succeeded", auth_ok)
+
+
+# ── 2. Activity download ──────────────────────────────────────────────────────
+section("2 / 4  Activity download")
+try:
+    results = service.download_activities(number=ACTIVITY_COUNT)
+    download_ok = len(results) > 0
+except Exception as e:
+    print(f"  {FAIL}  Download failed: {e}")
+    traceback.print_exc()
+    sys.exit(1)
+
+check("Got at least one activity", download_ok, f"{len(results)} activities")
+
+first = results[0] if results else {}
+check("Activity has 'name'",        bool(first.get("name")))
+check("Activity has 'time'",        first.get("time") is not None)
+check("Activity has 'type'",        bool(first.get("type")))
+check("Activity has 'data' (bytes)", isinstance(first.get("data"), bytes) and len(first.get("data", b"")) > 0)
+check("Activity has 'distance_km'", first.get("distance_km", 0) > 0,   f"{first.get('distance_km')} km")
+check("Activity has 'avg_hr'",      first.get("avg_hr") is not None,    f"{first.get('avg_hr')} bpm")
+check("Activity has 'calories'",    first.get("calories") is not None,  f"{first.get('calories')} kcal")
+
+print(f"\n  First activity: {first.get('name')} | {first.get('type')} | {first.get('time')}")
+print(f"  dist={first.get('distance_km')} km, "
+      f"avg_hr={first.get('avg_hr')} bpm, "
+      f"calories={first.get('calories')} kcal, "
+      f"elev={first.get('elevation_gain')} m")
+
+
+# ── 3. FIT parsing ────────────────────────────────────────────────────────────
+section("3 / 4  FIT file parsing (VO2 Max)")
+try:
+    FSP.Parser(results).parse_vo2_max_values()
+    parse_ok = True
+except Exception as e:
+    print(f"  {FAIL}  Parsing failed: {e}")
+    traceback.print_exc()
+    sys.exit(1)
+
+with_vo2 = [r for r in results if r.get("vo2_max", 0) > 0]
+check("Parsing ran without errors", parse_ok)
+check("At least one VO2 Max found", len(with_vo2) > 0, f"{len(with_vo2)}/{len(results)} activities")
+
+for r in with_vo2[:3]:
+    print(f"    {r['name']}: VO2 Max = {r['vo2_max']}")
+
+
+# ── 4. Dashboard ──────────────────────────────────────────────────────────────
+section("4 / 4  Dashboard")
+print("  Rendering dashboard — close the window to finish the test.\n")
+try:
+    visualisation.plot_dashboard(results)
+    check("Dashboard rendered", True)
+except Exception as e:
+    check("Dashboard rendered", False, str(e))
+    traceback.print_exc()
+
+
+# ── Summary ───────────────────────────────────────────────────────────────────
+section("Done")
+print(f"  Tested {len(results)} activities, {len(with_vo2)} with VO2 Max values.\n")
